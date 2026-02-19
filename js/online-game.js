@@ -16,6 +16,7 @@ class OnlineGame extends Game {
 
         // 回调
         this.onRPSDraw = null;  // 猜拳平局回调
+        this.onFirstPlayReceived = null;  // 收到先手出牌回调
 
         this.setupNetworkCallbacks();
     }
@@ -289,8 +290,13 @@ class OnlineGame extends Game {
     handleFirstPlay(payload) {
         // 对方是先手，收到对方的出牌
         if (this.firstPlayerPieces.length === 0) {
-            // 从对手手牌中移除（不在本地管理对手手牌时跳过）
             this.firstPlayerPieces = payload.pieces;
+
+            // 触发回调，让UI显示对手的牌（背面）
+            if (this.onFirstPlayReceived) {
+                this.onFirstPlayReceived(payload.pieces);
+            }
+
             this.notifyStateChange();
         }
     }

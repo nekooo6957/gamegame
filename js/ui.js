@@ -1658,6 +1658,16 @@ class UI {
         // 设置猜拳平局回调
         this.onlineGame.onRPSDraw = () => this.handleOnlineRPSDraw();
 
+        // 设置收到先手出牌回调 - 显示对手的牌背面
+        this.onlineGame.onFirstPlayReceived = async (pieces) => {
+            const isReserve = this.game.getState().phase === 'reserve';
+            // 对手的牌显示在对手区域（如果本地是玩家1，对手是玩家2，反之亦然）
+            const opponentId = this.onlineGame.localPlayerId === 1 ? 2 : 1;
+            await this.showPlayCards(pieces, opponentId, isReserve);
+            soundManager.play('play');
+            this.showMessage(`对手已出牌，请选择${pieces.length}张牌回应`);
+        };
+
         // 初始化游戏
         const localName = isHost ? '房主' : '挑战者';
         const remoteName = isHost ? '挑战者' : '房主';
@@ -1707,12 +1717,41 @@ class UI {
             this.showGamePhase('result');
         }
 
-        // 检查是否需要显示等待提示
-        if (this.isOnlineMode && !this.isLocalPlayerTurn(state)) {
-            this.showWaitingOverlay('等待对手操作...');
-        } else {
-            this.hideWaitingOverlay();
+        // 检查是否需要显示等待提示 - 使用头像旁的思考状态而非遮罩
+        if (this.isOnlineMode) {
+            this.updateThinkingIndicator(state);
         }
+    }
+
+    /**
+     * 更新思考状态指示器
+     */
+    updateThinkingIndicator(state) {
+        if (!this.onlineGame) return;
+
+        const localId = this.onlineGame.localPlayerId;
+        const opponentId = localId === 1 ? 2 : 1;
+        const isOpponentTurn = !this.isLocalPlayerTurn(state);
+
+        // 获取对手的思考状态元素
+        const thinkingEl = document.getElementById(`p${opponentId}-thinking`);
+        const thinkingText = document.getElementById(`p${opponentId}-thinking-text`);
+
+        if (isOpponentTurn && state.phase !== 'ended') {
+            // 对手正在思考
+            if (thinkingEl) thinkingEl.style.display = 'flex';
+            if (thinkingText) thinkingText.style.display = 'block';
+        } else {
+            // 隐藏思考状态
+            if (thinkingEl) thinkingEl.style.display = 'none';
+            if (thinkingText) thinkingText.style.display = 'none';
+        }
+
+        // 同时隐藏本地玩家的思考状态
+        const localThinkingEl = document.getElementById(`p${localId}-thinking`);
+        const localThinkingText = document.getElementById(`p${localId}-thinking-text`);
+        if (localThinkingEl) localThinkingEl.style.display = 'none';
+        if (localThinkingText) localThinkingText.style.display = 'none';
     }
 
     /**
@@ -1836,7 +1875,7 @@ class UI {
                     await this.showPlayCards(selectedPieceChars, displaySlot, isReserve);
                     this.playCardSound(selectedPieceChars);
                     this.selectedPieces = [];
-                    this.showWaitingOverlay('等待对手出牌...');
+                    // 不再显示遮罩，思考状态会在 updateOnlineUI 中自动更新
                 }
             }
         } else {
