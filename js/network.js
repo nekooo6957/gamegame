@@ -41,6 +41,8 @@ class NetworkManager {
         this.roomCode = null;       // 房间码
         this.isHost = false;        // 是否是房主
         this.isConnected = false;   // 连接状态
+        this.connectionTimeout = null;  // 连接超时定时器
+        this.CONNECT_TIMEOUT = 15000;   // 连接超时时间（毫秒）
 
         // 回调函数
         this.onConnected = null;    // 连接成功
@@ -73,29 +75,52 @@ class NetworkManager {
         // 使用固定前缀 + 房间码作为 Peer ID
         const peerId = `CHESS_${this.roomCode}`;
 
-        this.peer = new Peer(peerId, {
-            debug: 0
-        });
+        try {
+            this.peer = new Peer(peerId, {
+                debug: 1,  // 启用调试日志
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
 
-        this.peer.on('open', (id) => {
-            console.log('房间创建成功，等待对手加入:', id);
-        });
+            this.peer.on('open', (id) => {
+                console.log('房间创建成功，等待对手加入:', id);
+            });
 
-        this.peer.on('connection', (conn) => {
-            // 只接受一个连接
-            if (this.connection) {
-                conn.close();
-                return;
-            }
+            this.peer.on('connection', (conn) => {
+                // 只接受一个连接
+                if (this.connection) {
+                    conn.close();
+                    return;
+                }
 
-            this.connection = conn;
-            console.log('对手已连接:', conn.peer);
-            this.setupConnection();
-        });
+                this.connection = conn;
+                console.log('对手已连接:', conn.peer);
+                this.setupConnection();
+            });
 
-        this.peer.on('error', (err) => {
+            this.peer.on('error', (err) => {
+                this.handleError(err);
+            });
+
+            this.peer.on('disconnected', () => {
+                console.log('与信令服务器断开连接');
+                // 尝试重连
+                if (this.peer && !this.peer.destroyed) {
+                    setTimeout(() => {
+                        if (this.peer && !this.peer.destroyed) {
+                            this.peer.reconnect();
+                        }
+                    }, 3000);
+                }
+            });
+        } catch (err) {
+            console.error('创建房间失败:', err);
             this.handleError(err);
-        });
+        }
 
         return this.roomCode;
     }
@@ -108,24 +133,61 @@ class NetworkManager {
         this.roomCode = code.toUpperCase().trim();
         this.isHost = false;
 
-        this.peer = new Peer({
-            debug: 0
-        });
-
-        this.peer.on('open', () => {
-            console.log('正在连接房间:', this.roomCode);
-
-            this.connection = this.peer.connect(`CHESS_${this.roomCode}`, {
-                reliable: true,
-                serialization: 'json'
+        try {
+            this.peer = new Peer({
+                debug: 1,  // 启用调试日志
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
             });
 
-            this.setupConnection();
-        });
+            this.peer.on('open', () => {
+                console.log('本地Peer已就绪，正在连接房间:', this.roomCode);
 
-        this.peer.on('error', (err) => {
+                this.connection = this.peer.connect(`CHESS_${this.roomCode}`, {
+                    reliable: true,
+                    serialization: 'json'
+                });
+
+                this.setupConnection();
+
+                // 设置连接超时
+                this.connectionTimeout = setTimeout(() => {
+                    if (!this.isConnected) {
+                        console.error('连接超时');
+                        this.clearConnectionTimeout();
+                        if (this.onError) {
+                            this.onError('连接超时，请检查房间码是否正确或网络是否正常');
+                        }
+                    }
+                }, this.CONNECT_TIMEOUT);
+            });
+
+            this.peer.on('error', (err) => {
+                this.clearConnectionTimeout();
+                this.handleError(err);
+            });
+
+            this.peer.on('disconnected', () => {
+                console.log('与信令服务器断开连接');
+            });
+        } catch (err) {
+            console.error('加入房间失败:', err);
             this.handleError(err);
-        });
+        }
+    }
+
+    /**
+     * 清除连接超时定时器
+     */
+    clearConnectionTimeout() {
+        if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+        }
     }
 
     /**
@@ -135,6 +197,7 @@ class NetworkManager {
         if (!this.connection) return;
 
         this.connection.on('open', () => {
+            this.clearConnectionTimeout();
             this.isConnected = true;
             console.log('连接已建立');
 
@@ -151,6 +214,7 @@ class NetworkManager {
         });
 
         this.connection.on('close', () => {
+            this.clearConnectionTimeout();
             this.isConnected = false;
             console.log('连接已断开');
 
@@ -160,8 +224,14 @@ class NetworkManager {
         });
 
         this.connection.on('error', (err) => {
+            this.clearConnectionTimeout();
             console.error('连接错误:', err);
             this.handleError(err);
+        });
+
+        // 连接 ice 状态变化
+        this.connection.peerConnection?.oniceconnectionstatechange?.(() => {
+            console.log('ICE状态:', this.connection.peerConnection?.iceConnectionState);
         });
     }
 
@@ -196,6 +266,9 @@ class NetworkManager {
      * 断开连接
      */
     disconnect() {
+        // 清除超时定时器
+        this.clearConnectionTimeout();
+
         // 发送断开通知
         if (this.isConnected) {
             this.send(MessageType.DISCONNECT);
@@ -224,17 +297,28 @@ class NetworkManager {
      */
     handleError(err) {
         console.error('网络错误:', err);
+        console.error('错误类型:', err.type);
 
         let message = '连接失败，请重试';
 
         if (err.type === 'peer-unavailable') {
-            message = '房间不存在或已关闭';
+            message = '房间不存在或已关闭，请检查房间码';
         } else if (err.type === 'disconnected') {
-            message = '已与服务器断开连接';
+            message = '已与服务器断开连接，请检查网络';
         } else if (err.type === 'network') {
-            message = '网络连接异常';
+            message = '网络连接异常，请检查网络设置';
         } else if (err.type === 'browser-incompatible') {
-            message = '浏览器不支持 WebRTC';
+            message = '浏览器不支持 WebRTC，请更换浏览器';
+        } else if (err.type === 'invalid-id') {
+            message = '无效的房间码格式';
+        } else if (err.type === 'unavailable-id') {
+            message = '房间已被占用，请重试';
+        } else if (err.type === 'ssl-unavailable') {
+            message = '需要 HTTPS 环境才能使用在线功能';
+        } else if (err.type === 'server-error') {
+            message = '服务器错误，请稍后重试';
+        } else if (err.message) {
+            message = `连接失败: ${err.message}`;
         }
 
         if (this.onError) {
