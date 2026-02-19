@@ -8,6 +8,7 @@ const MessageType = {
     // 连接相关
     PLAYER_JOIN: 'player_join',      // 玩家加入
     PLAYER_READY: 'player_ready',    // 玩家准备
+    GAME_START: 'game_start',        // 游戏开始（房主发送）
 
     // 游戏初始化
     GAME_INIT: 'game_init',          // 游戏初始化数据

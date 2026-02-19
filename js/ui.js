@@ -230,6 +230,18 @@ class UI {
             this.showScreen('menu');
         });
 
+        // 准备游戏按钮（挑战者）
+        document.getElementById('btn-ready-game')?.addEventListener('click', () => {
+            soundManager.play('click');
+            this.handleReadyGame();
+        });
+
+        // 开始游戏按钮（房主）
+        document.getElementById('btn-start-game')?.addEventListener('click', () => {
+            soundManager.play('click');
+            this.handleStartGame();
+        });
+
         // 房间码输入框格式化
         document.getElementById('input-room-code')?.addEventListener('input', (e) => {
             e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -313,6 +325,12 @@ class UI {
         const targetPhase = document.getElementById(`phase-${phase}`);
         if (targetPhase) {
             targetPhase.classList.add('active');
+        }
+
+        // 等待阶段特殊处理
+        if (phase === 'waiting') {
+            this.updateWaitingPhase();
+            return;
         }
 
         // 处理不同阶段的按钮显示
@@ -414,6 +432,85 @@ class UI {
                 this.game.currentPlayCount = requiredCount;
                 this.selectedPiles = [];
             }
+        }
+    }
+
+    /**
+     * 更新等待准备阶段UI
+     */
+    updateWaitingPhase() {
+        if (!this.onlineGame) return;
+
+        const isHost = this.onlineGame.network.isHost;
+        const canActInfo = this.onlineGame.canReadyOrStart();
+
+        // 更新状态显示
+        const hostStatus = document.getElementById('host-status');
+        const guestStatus = document.getElementById('guest-status');
+        const hostName = document.getElementById('host-name');
+        const guestName = document.getElementById('guest-name');
+        const waitingHint = document.getElementById('waiting-hint');
+        const btnReady = document.getElementById('btn-ready-game');
+        const btnStart = document.getElementById('btn-start-game');
+
+        // 设置名字
+        if (hostName) hostName.textContent = this.onlineGame.player1?.name || '房主';
+        if (guestName) guestName.textContent = this.onlineGame.player2?.name || '挑战者';
+
+        if (isHost) {
+            // 房主视角
+            if (hostStatus) hostStatus.textContent = '✅';
+            if (guestStatus) guestStatus.textContent = this.onlineGame.opponentReady ? '✅' : '⏳';
+
+            if (btnReady) btnReady.style.display = 'none';
+            if (btnStart) {
+                btnStart.style.display = this.onlineGame.opponentReady ? 'inline-block' : 'none';
+            }
+
+            if (waitingHint) {
+                waitingHint.textContent = this.onlineGame.opponentReady
+                    ? '对手已准备，点击开始游戏！'
+                    : '等待对手准备...';
+            }
+        } else {
+            // 挑战者视角
+            if (hostStatus) hostStatus.textContent = '✅';
+            if (guestStatus) guestStatus.textContent = this.onlineGame.localReady ? '✅' : '⏳';
+
+            if (btnStart) btnStart.style.display = 'none';
+            if (btnReady) {
+                btnReady.style.display = this.onlineGame.localReady ? 'none' : 'inline-block';
+            }
+
+            if (waitingHint) {
+                waitingHint.textContent = this.onlineGame.localReady
+                    ? '已准备，等待房主开始游戏...'
+                    : '请点击准备按钮';
+            }
+        }
+    }
+
+    /**
+     * 处理准备游戏（挑战者）
+     */
+    handleReadyGame() {
+        if (!this.onlineGame) return;
+
+        this.onlineGame.sendReady();
+        this.updateWaitingPhase();
+    }
+
+    /**
+     * 处理开始游戏（房主）
+     */
+    handleStartGame() {
+        if (!this.onlineGame) return;
+
+        const success = this.onlineGame.sendGameStart();
+        if (success) {
+            soundManager.play('win');
+            voiceManager.playGameStart();
+            this.showGamePhase('rps');
         }
     }
 
@@ -1658,6 +1755,19 @@ class UI {
         // 设置猜拳平局回调
         this.onlineGame.onRPSDraw = () => this.handleOnlineRPSDraw();
 
+        // 设置对手准备回调
+        this.onlineGame.onOpponentReady = () => {
+            this.updateWaitingPhase();
+            soundManager.play('click');
+        };
+
+        // 设置游戏开始回调
+        this.onlineGame.onGameStart = () => {
+            soundManager.play('win');
+            voiceManager.playGameStart();
+            this.showGamePhase('rps');
+        };
+
         // 设置收到先手出牌回调 - 显示对手的牌背面
         this.onlineGame.onFirstPlayReceived = async (pieces) => {
             const isReserve = this.game.getState().phase === 'reserve';
@@ -1678,14 +1788,12 @@ class UI {
         this.selectedPiles = [];
         this.localRPSChoice = null;
 
-        soundManager.play('win');
-
         this.showScreen('game');
-        this.showGamePhase('rps');
+        this.showGamePhase('waiting');
 
-        // 挑战者显示等待提示
-        if (!isHost) {
-            this.showWaitingOverlay('等待房主发牌...');
+        // 房主等待挑战者准备，挑战者可以点击准备
+        if (isHost) {
+            this.showMessage('等待对手准备...');
         }
     }
 
@@ -1693,6 +1801,12 @@ class UI {
      * 更新在线游戏UI
      */
     updateOnlineUI(state) {
+        // 等待阶段特殊处理
+        if (state.phase === 'waiting') {
+            this.updateWaitingPhase();
+            return;
+        }
+
         // 更新玩家信息
         this.updateOnlinePlayerInfo(state);
 

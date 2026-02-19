@@ -10,6 +10,10 @@ class OnlineGame extends Game {
         this.localPlayerId = null;  // 本地玩家ID (1或2)
         this.isSynced = false;      // 是否已同步
 
+        // 准备阶段
+        this.opponentReady = false;  // 对手是否已准备
+        this.localReady = false;     // 本地是否已准备
+
         // 猜拳相关
         this.localRPSChoice = null;
         this.opponentRPSChoice = null;
@@ -17,6 +21,8 @@ class OnlineGame extends Game {
         // 回调
         this.onRPSDraw = null;  // 猜拳平局回调
         this.onFirstPlayReceived = null;  // 收到先手出牌回调
+        this.onOpponentReady = null;  // 对手准备回调
+        this.onGameStart = null;  // 游戏开始回调
 
         this.setupNetworkCallbacks();
     }
@@ -43,6 +49,14 @@ class OnlineGame extends Game {
         switch (type) {
             case MessageType.GAME_INIT:
                 this.handleGameInit(payload);
+                break;
+
+            case MessageType.PLAYER_READY:
+                this.handleOpponentReady(payload);
+                break;
+
+            case MessageType.GAME_START:
+                this.handleGameStartMsg(payload);
                 break;
 
             case MessageType.RPS_CHOICE:
@@ -94,14 +108,12 @@ class OnlineGame extends Game {
             this.player1.setHand(player1);
             this.player2.setHand(player2);
 
-            this.phase = 'rockPaperScissors';
+            this.phase = 'waiting';  // 等待挑战者准备
             this.roundNumber = 0;
             this.winner = null;
             this.gameLog = [];
 
-            this.log('游戏开始！');
-            this.log(`${localName} 获得 ${this.player1.getHandCount()} 个棋子`);
-            this.log(`${remoteName} 获得 ${this.player2.getHandCount()} 个棋子`);
+            this.log('对手已连接，发送游戏数据...');
 
             // 发送初始化数据给对方
             this.network.send(MessageType.GAME_INIT, {
@@ -111,6 +123,7 @@ class OnlineGame extends Game {
                 player2Hand: this.player2.handPieces
             });
 
+            this.log('等待对手准备...');
             this.notifyStateChange();
         }
         // 挑战者在收到 GAME_INIT 消息时初始化
@@ -118,6 +131,7 @@ class OnlineGame extends Game {
 
     /**
      * 处理游戏初始化数据（挑战者调用）
+     * 不自动发送准备，等待用户点击准备按钮
      */
     handleGameInit(payload) {
         const { player1Name, player2Name, player1Hand, player2Hand } = payload;
@@ -130,16 +144,83 @@ class OnlineGame extends Game {
         this.player2.setHand(player2Hand);
 
         this.localPlayerId = 2;
-        this.phase = 'rockPaperScissors';
+        this.phase = 'waiting';  // 等待准备阶段
         this.roundNumber = 0;
         this.winner = null;
         this.gameLog = [];
 
-        this.log('游戏开始！');
-        this.log(`获得 ${this.player2.getHandCount()} 个棋子`);
+        this.log('收到游戏数据，请点击准备');
 
-        // 发送准备确认
-        this.network.send(MessageType.PLAYER_READY);
+        this.notifyStateChange();
+    }
+
+    /**
+     * 发送准备信号（挑战者调用）
+     */
+    sendReady() {
+        if (this.localReady) return;  // 已经准备好了
+
+        this.localReady = true;
+        this.network.send(MessageType.PLAYER_READY, {
+            playerName: this.player2.name
+        });
+
+        this.log('已准备，等待房主开始游戏');
+        this.notifyStateChange();
+    }
+
+    /**
+     * 处理对手准备信号（房主调用）
+     */
+    handleOpponentReady(payload) {
+        this.opponentReady = true;
+        this.log(`${payload?.playerName || '对手'} 已准备`);
+
+        if (this.onOpponentReady) {
+            this.onOpponentReady();
+        }
+
+        this.notifyStateChange();
+    }
+
+    /**
+     * 发送游戏开始信号（房主调用）
+     */
+    sendGameStart() {
+        if (!this.opponentReady) {
+            console.log('对手还未准备');
+            return false;
+        }
+
+        this.network.send(MessageType.GAME_START, {
+            timestamp: Date.now()
+        });
+
+        // 本地也开始游戏
+        this.startGamePhase();
+
+        return true;
+    }
+
+    /**
+     * 处理游戏开始信号（挑战者调用）
+     */
+    handleGameStartMsg(payload) {
+        this.log('游戏开始！');
+        this.startGamePhase();
+    }
+
+    /**
+     * 进入游戏阶段
+     */
+    startGamePhase() {
+        this.phase = 'rockPaperScissors';
+        this.log(`${this.player1.name} 获得 ${this.player1.getHandCount()} 个棋子`);
+        this.log(`${this.player2.name} 获得 ${this.player2.getHandCount()} 个棋子`);
+
+        if (this.onGameStart) {
+            this.onGameStart();
+        }
 
         this.notifyStateChange();
     }
@@ -428,6 +509,11 @@ class OnlineGame extends Game {
     isLocalPlayerTurn() {
         const state = this.getState();
 
+        // 等待阶段不进行操作
+        if (state.phase === 'waiting') {
+            return false;
+        }
+
         if (state.phase === 'rockPaperScissors') {
             // 猜拳阶段，双方都可以选
             return this.localRPSChoice === null;
@@ -450,6 +536,31 @@ class OnlineGame extends Game {
         }
 
         return false;
+    }
+
+    /**
+     * 判断本地玩家是否可以点击准备/开始按钮
+     */
+    canReadyOrStart() {
+        if (this.phase !== 'waiting') return { canAct: false };
+
+        if (this.network.isHost) {
+            // 房主：对手准备好后可以开始
+            return {
+                canAct: this.opponentReady,
+                action: 'start',
+                buttonText: '开始游戏',
+                waitingText: this.opponentReady ? null : '等待对手准备...'
+            };
+        } else {
+            // 挑战者：可以准备
+            return {
+                canAct: !this.localReady,
+                action: 'ready',
+                buttonText: '准备游戏',
+                waitingText: this.localReady ? '已准备，等待房主开始...' : null
+            };
+        }
     }
 
     /**

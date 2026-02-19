@@ -197,6 +197,31 @@
 
             <!-- 中央对战区 -->
             <section class="battle-zone">
+                <!-- 等待准备阶段 -->
+                <div id="phase-waiting" class="game-phase">
+                    <h2 class="waiting-title">在线对战</h2>
+                    <div class="waiting-info">
+                        <div class="player-status">
+                            <span class="status-icon" id="host-status">⏳</span>
+                            <span class="status-name" id="host-name">房主</span>
+                            <span class="status-label">房主</span>
+                        </div>
+                        <div class="vs-divider">
+                            <span>VS</span>
+                        </div>
+                        <div class="player-status">
+                            <span class="status-icon" id="guest-status">⏳</span>
+                            <span class="status-name" id="guest-name">挑战者</span>
+                            <span class="status-label">挑战者</span>
+                        </div>
+                    </div>
+                    <div class="ready-action">
+                        <p id="waiting-hint" class="waiting-hint">正在同步数据...</p>
+                        <button id="btn-ready-game" class="menu-btn btn-primary" style="display:none;">准备游戏</button>
+                        <button id="btn-start-game" class="menu-btn btn-primary" style="display:none;">开始游戏</button>
+                    </div>
+                </div>
+
                 <!-- 猜拳阶段 -->
                 <div id="phase-rps" class="game-phase active">
                     <h2 class="rps-title">猜拳决定先手</h2>
