@@ -96,6 +96,9 @@ class OnlineGame extends Game {
      * @param {boolean} isHost - 是否是房主
      */
     initOnline(localName, remoteName, isHost) {
+        console.log('[initOnline] 开始初始化, isHost:', isHost, 'typeof:', typeof isHost);
+        console.log('[initOnline] network.isHost:', this.network.isHost);
+
         this.localPlayerId = isHost ? 1 : 2;
 
         // 设置初始状态（双方都需要）
@@ -141,6 +144,9 @@ class OnlineGame extends Game {
      * 不自动发送准备，等待用户点击准备按钮
      */
     handleGameInit(payload) {
+        console.log('[handleGameInit] 收到游戏初始化数据');
+        console.log('[handleGameInit] network.isHost:', this.network.isHost);
+
         const { player1Name, player2Name, player1Hand, player2Hand } = payload;
 
         // 挑战者是玩家2
@@ -180,6 +186,9 @@ class OnlineGame extends Game {
      * 处理对手准备信号（房主调用）
      */
     handleOpponentReady(payload) {
+        console.log('[handleOpponentReady] 收到对手准备信号');
+        console.log('[handleOpponentReady] network.isHost:', this.network.isHost);
+
         this.opponentReady = true;
         this.log(`${payload?.playerName || '对手'} 已准备`);
 

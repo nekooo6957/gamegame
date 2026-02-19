@@ -439,10 +439,21 @@ class UI {
      * 更新等待准备阶段UI
      */
     updateWaitingPhase() {
-        if (!this.onlineGame) return;
+        if (!this.onlineGame) {
+            console.log('[updateWaitingPhase] onlineGame is null, skipping');
+            return;
+        }
+
+        if (!this.onlineGame.network) {
+            console.log('[updateWaitingPhase] network is null, skipping');
+            return;
+        }
 
         const isHost = this.onlineGame.network.isHost;
-        console.log('[updateWaitingPhase] isHost:', isHost, 'localReady:', this.onlineGame.localReady, 'opponentReady:', this.onlineGame.opponentReady);
+        console.log('[updateWaitingPhase] === START ===');
+        console.log('[updateWaitingPhase] isHost:', isHost, 'typeof:', typeof isHost);
+        console.log('[updateWaitingPhase] localReady:', this.onlineGame.localReady);
+        console.log('[updateWaitingPhase] opponentReady:', this.onlineGame.opponentReady);
 
         // 更新状态显示
         const hostStatus = document.getElementById('host-status');
@@ -453,20 +464,27 @@ class UI {
         const btnReady = document.getElementById('btn-ready-game');
         const btnStart = document.getElementById('btn-start-game');
 
+        console.log('[updateWaitingPhase] btnReady element:', btnReady);
+        console.log('[updateWaitingPhase] btnStart element:', btnStart);
+
         // 设置名字
         if (hostName) hostName.textContent = this.onlineGame.player1?.name || '房主';
         if (guestName) guestName.textContent = this.onlineGame.player2?.name || '挑战者';
 
-        if (isHost) {
+        if (isHost === true) {
             // 房主视角
-            console.log('[updateWaitingPhase] 房主视角');
+            console.log('[updateWaitingPhase] 进入房主视角分支');
             if (hostStatus) hostStatus.textContent = '✅';
             if (guestStatus) guestStatus.textContent = this.onlineGame.opponentReady ? '✅' : '⏳';
 
-            if (btnReady) btnReady.style.display = 'none';
+            if (btnReady) {
+                btnReady.style.display = 'none';
+                console.log('[updateWaitingPhase] 房主: btnReady 隐藏');
+            }
             if (btnStart) {
-                btnStart.style.display = this.onlineGame.opponentReady ? 'inline-block' : 'none';
-                console.log('[updateWaitingPhase] btnStart display:', btnStart.style.display);
+                const showStart = this.onlineGame.opponentReady === true;
+                btnStart.style.display = showStart ? 'inline-block' : 'none';
+                console.log('[updateWaitingPhase] 房主: btnStart display =', btnStart.style.display, '(opponentReady:', this.onlineGame.opponentReady, ')');
             }
 
             if (waitingHint) {
@@ -474,17 +492,20 @@ class UI {
                     ? '对手已准备，点击开始游戏！'
                     : '等待对手准备...';
             }
-        } else {
+        } else if (isHost === false) {
             // 挑战者视角
-            console.log('[updateWaitingPhase] 挑战者视角');
+            console.log('[updateWaitingPhase] 进入挑战者视角分支');
             if (hostStatus) hostStatus.textContent = '✅';
             if (guestStatus) guestStatus.textContent = this.onlineGame.localReady ? '✅' : '⏳';
 
-            if (btnStart) btnStart.style.display = 'none';
+            if (btnStart) {
+                btnStart.style.display = 'none';
+                console.log('[updateWaitingPhase] 挑战者: btnStart 隐藏');
+            }
             if (btnReady) {
-                const shouldShow = !this.onlineGame.localReady;
-                btnReady.style.display = shouldShow ? 'inline-block' : 'none';
-                console.log('[updateWaitingPhase] btnReady display:', btnReady.style.display, 'shouldShow:', shouldShow);
+                const showReady = this.onlineGame.localReady !== true;
+                btnReady.style.display = showReady ? 'inline-block' : 'none';
+                console.log('[updateWaitingPhase] 挑战者: btnReady display =', btnReady.style.display, '(localReady:', this.onlineGame.localReady, ')');
             }
 
             if (waitingHint) {
@@ -492,7 +513,10 @@ class UI {
                     ? '已准备，等待房主开始游戏...'
                     : '请点击准备按钮';
             }
+        } else {
+            console.log('[updateWaitingPhase] isHost 不是 true 也不是 false! isHost =', isHost);
         }
+        console.log('[updateWaitingPhase] === END ===');
     }
 
     /**
@@ -1787,6 +1811,9 @@ class UI {
         const localName = isHost ? '房主' : '挑战者';
         const remoteName = isHost ? '挑战者' : '房主';
 
+        console.log('[startOnlineGame] isHost:', isHost, 'typeof:', typeof isHost);
+        console.log('[startOnlineGame] networkManager.isHost:', networkManager.isHost);
+
         this.selectedPieces = [];
         this.selectedPiles = [];
         this.localRPSChoice = null;
@@ -1797,6 +1824,10 @@ class UI {
 
         // 然后初始化游戏数据（会触发 notifyStateChange）
         this.onlineGame.initOnline(localName, remoteName, isHost);
+
+        // 强制再次更新等待阶段UI，确保按钮正确显示
+        console.log('[startOnlineGame] initOnline 完成，强制更新 updateWaitingPhase');
+        this.updateWaitingPhase();
 
         // 房主等待挑战者准备，挑战者可以点击准备
         if (isHost) {
