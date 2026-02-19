@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__web-search-prime__webSearchPrime",
+      "Bash(claude:*)",
+      "Bash(npm view:*)",
+      "Bash(npm show:*)",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Users\\\\nekooo\\\\.claude\\\\plugins\\\\cache\\\\anthropic-agent-skills\\\\document-skills\\\\69c0b1a06741\\\\skills\\\\'' -ErrorAction SilentlyContinue | Format-Table Name, Mode\")",
+      "Bash(powershell -Command:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

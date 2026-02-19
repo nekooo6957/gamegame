@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>职场大乱斗 - 人才争夺战</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 主菜单 -->
+    <div id="screen-menu" class="screen active">
+        <h1 class="game-title">职场大乱斗</h1>
+        <p class="game-subtitle">人才争夺战 - 公司吞并之战</p>
+
+        <div class="menu-buttons">
+            <button id="btn-online" class="menu-btn btn-primary">在线对战</button>
+            <button id="btn-local" class="menu-btn btn-primary">本地双人对战</button>
+            <button id="btn-ai" class="menu-btn btn-primary">人机对战</button>
+            <button id="btn-tutorial" class="menu-btn btn-secondary">游戏教程</button>
+        </div>
+
+        <div class="menu-settings">
+            <button id="toggle-sound" class="settings-btn" title="音效">🔊</button>
+            <button id="toggle-voice" class="settings-btn" title="语音">🗣️</button>
+        </div>
+
+        <p style="color: rgba(255,255,255,0.7); margin-top: 30px; font-size: 14px;">
+            两位公司老板的挖人大战
+        </p>
+    </div>
+
+    <!-- 难度选择模态框 -->
+    <div id="difficulty-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">选择AI难度</h2>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn" data-difficulty="easy">
+                    <span class="difficulty-name">简单</span>
+                    <span class="difficulty-desc">AI随机出牌，适合新手</span>
+                </button>
+                <button class="difficulty-btn selected" data-difficulty="normal">
+                    <span class="difficulty-name">普通</span>
+                    <span class="difficulty-desc">AI有一定策略</span>
+                </button>
+                <button class="difficulty-btn" data-difficulty="hard">
+                    <span class="difficulty-name">困难</span>
+                    <span class="difficulty-desc">AI精心计算，极具挑战</span>
+                </button>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-start-ai" class="menu-btn btn-primary">开始对战</button>
+                <button id="btn-back-menu" class="menu-btn btn-secondary">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 教程模态框 -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content tutorial-content">
+            <h2 id="tutorial-title" class="modal-title"></h2>
+            <div id="tutorial-content" class="tutorial-text"></div>
+            <div class="tutorial-footer">
+                <span id="tutorial-progress" class="tutorial-progress"></span>
+                <div class="tutorial-nav">
+                    <button id="btn-tutorial-skip" class="menu-btn btn-secondary">跳过</button>
+                    <button id="btn-tutorial-next" class="menu-btn btn-primary">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 在线对战模态框 -->
+    <div id="online-modal" class="modal">
+        <div class="modal-content online-modal-content">
+            <h2 class="modal-title">在线对战</h2>
+
+            <!-- 模式选择 -->
+            <div id="online-mode-select" class="online-section">
+                <button id="btn-create-room" class="online-btn">
+                    <span class="online-btn-icon">🏠</span>
+                    <div class="online-btn-content">
+                        <span class="online-btn-text">创建房间</span>
+                        <span class="online-btn-desc">生成房间码，邀请好友加入</span>
+                    </div>
+                </button>
+                <button id="btn-join-room" class="online-btn">
+                    <span class="online-btn-icon">🚪</span>
+                    <div class="online-btn-content">
+                        <span class="online-btn-text">加入房间</span>
+                        <span class="online-btn-desc">输入房间码，加入好友房间</span>
+                    </div>
+                </button>
+                <button id="btn-online-back" class="menu-btn btn-secondary" style="margin-top: 20px;">返回</button>
+            </div>
+
+            <!-- 创建房间 -->
+            <div id="online-create" class="online-section" style="display:none;">
+                <div class="room-code-display">
+                    <span class="room-label">房间码</span>
+                    <span class="room-code" id="created-room-code">------</span>
+                </div>
+                <div class="room-actions">
+                    <button class="copy-btn" id="btn-copy-code">📋 复制</button>
+                    <button class="share-btn" id="btn-share-code" style="display:none;">📤 分享</button>
+                </div>
+                <div class="share-hint">
+                    <p>将房间码分享给好友，等待加入...</p>
+                </div>
+                <div class="waiting-indicator">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="menu-btn btn-secondary" id="btn-cancel-create">取消</button>
+            </div>
+
+            <!-- 加入房间 -->
+            <div id="online-join" class="online-section" style="display:none;">
+                <div class="room-code-input-wrapper">
+                    <input type="text"
+                           id="input-room-code"
+                           class="room-code-input"
+                           placeholder="输入6位房间码"
+                           maxlength="6"
+                           autocomplete="off"
+                           autocapitalize="characters">
+                </div>
+                <button class="menu-btn btn-primary" id="btn-confirm-join">加入房间</button>
+                <button class="menu-btn btn-secondary" id="btn-cancel-join" style="margin-top: 10px;">返回</button>
+            </div>
+
+            <!-- 连接中 -->
+            <div id="online-connecting" class="online-section" style="display:none;">
+                <div class="connecting-spinner"></div>
+                <p>正在连接...</p>
+            </div>
+
+            <!-- 错误提示 -->
+            <div id="online-error" class="online-section" style="display:none;">
+                <div class="error-icon">❌</div>
+                <p id="online-error-msg">连接失败</p>
+                <button class="menu-btn btn-secondary" id="btn-error-back">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏界面 - 对战棋盘布局 -->
+    <div id="screen-game" class="screen game-screen">
+        <!-- 游戏头部信息 -->
+        <header class="game-header">
+            <div class="round-info" id="round-info">准备开始</div>
+            <div class="header-settings">
+                <button id="toggle-sound-game" class="settings-btn small" title="音效">🔊</button>
+                <button id="toggle-voice-game" class="settings-btn small" title="语音">🗣️</button>
+            </div>
+        </header>
+
+        <!-- 对战区域容器 -->
+        <main class="battle-arena">
+            <!-- 玩家2区域（上方） -->
+            <section class="player-area player-area--top" id="player2-area">
+                <div class="player-info-bar">
+                    <div class="player-avatar player-avatar--purple">
+                        <svg viewBox="0 0 40 40" class="avatar-svg">
+                            <circle cx="20" cy="15" r="10" fill="#ffe4c4"/>
+                            <path d="M5,40 L5,28 Q5,22 12,22 L28,22 Q35,22 35,28 L35,40 Z" fill="#5a6c7d"/>
+                        </svg>
+                    </div>
+                    <div class="player-details">
+                        <span class="player-name" id="p2-name">玩家2</span>
+                        <span class="player-company">a公司</span>
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat">
+                            <span class="stat-icon">🃏</span>
+                            <span class="stat-value" id="p2-hand-count">11</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">📦</span>
+                            <span class="stat-value" id="p2-reserve-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 玩家2备战区 -->
+                <div class="reserve-grid" id="p2-reserve-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- 中央对战区 -->
+            <section class="battle-zone">
+                <!-- 猜拳阶段 -->
+                <div id="phase-rps" class="game-phase active">
+                    <h2 class="rps-title">猜拳决定先手</h2>
+                    <div class="rps-buttons">
+                        <button class="rps-btn" data-choice="rock">✊</button>
+                        <button class="rps-btn" data-choice="paper">✋</button>
+                        <button class="rps-btn" data-choice="scissors">✌️</button>
+                    </div>
+                    <div id="rps-result"></div>
+                </div>
+
+                <!-- 出牌对战区域 -->
+                <div id="phase-play" class="game-phase">
+                    <div class="battle-field">
+                        <!-- P2出牌区 -->
+                        <div class="play-area play-area--opponent" id="p2-play-area">
+                            <div class="cards-slot" id="p2-cards-slot">
+                                <!-- 对手出牌显示 -->
+                            </div>
+                            <div class="play-label">对手出牌</div>
+                        </div>
+
+                        <!-- VS指示器 -->
+                        <div class="vs-indicator">
+                            <span class="vs-text">VS</span>
+                        </div>
+
+                        <!-- P1出牌区 -->
+                        <div class="play-area play-area--self" id="p1-play-area">
+                            <div class="cards-slot" id="p1-cards-slot">
+                                <!-- 我的出牌显示 -->
+                            </div>
+                            <div class="play-label">我的出牌</div>
+                        </div>
+                    </div>
+
+                    <!-- 结果展示区 -->
+                    <div class="result-display" id="battle-result">
+                        <div class="result-content">
+                            <span class="result-icon"></span>
+                            <span class="result-text"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 备战区对战阶段 -->
+                <div id="phase-reserve" class="game-phase">
+                    <div class="battle-field">
+                        <div class="play-area play-area--opponent" id="p2-reserve-play-area">
+                            <div class="cards-slot" id="p2-reserve-slot"></div>
+                            <div class="play-label">对手出堆</div>
+                        </div>
+                        <div class="vs-indicator">
+                            <span class="vs-text">VS</span>
+                        </div>
+                        <div class="play-area play-area--self" id="p1-reserve-play-area">
+                            <div class="cards-slot" id="p1-reserve-slot"></div>
+                            <div class="play-label">我的出堆</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 结果阶段 -->
+                <div id="phase-result" class="game-phase">
+                    <h2 class="result-title">游戏结束！</h2>
+                    <p class="result-message">
+                        <span id="winner-name">玩家1</span> 完成公司吞并！<br>
+                        <span id="loser-name">玩家2</span> 的公司被收购了...
+                    </p>
+                    <button id="btn-restart" class="menu-btn btn-primary">返回主菜单</button>
+                </div>
+            </section>
+
+            <!-- 玩家1区域（下方） -->
+            <section class="player-area player-area--bottom" id="player1-area">
+                <div class="player-info-bar">
+                    <div class="player-avatar player-avatar--gold">
+                        <svg viewBox="0 0 40 40" class="avatar-svg">
+                            <circle cx="20" cy="15" r="10" fill="#ffe4c4"/>
+                            <path d="M5,40 L5,28 Q5,22 12,22 L28,22 Q35,22 35,28 L35,40 Z" fill="#5a6c7d"/>
+                        </svg>
+                    </div>
+                    <div class="player-details">
+                        <span class="player-name" id="p1-name">玩家1</span>
+                        <span class="player-company">A公司</span>
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat">
+                            <span class="stat-icon">🃏</span>
+                            <span class="stat-value" id="p1-hand-count">11</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">📦</span>
+                            <span class="stat-value" id="p1-reserve-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 玩家1备战区 -->
+                <div class="reserve-grid" id="p1-reserve-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部手牌区 -->
+        <section class="hand-area" id="hand-area">
+            <!-- 出牌方式选择 -->
+            <div class="play-mode-selector" id="play-mode-selector">
+                <button class="mode-btn" data-count="1">单张</button>
+                <button class="mode-btn" data-count="2">成对</button>
+                <button class="mode-btn" data-count="3">顺子</button>
+            </div>
+
+            <!-- 手牌展示 -->
+            <div class="hand-container" id="player-hand">
+                <!-- 动态生成的手牌卡片 -->
+            </div>
+
+            <!-- 已选牌区 -->
+            <div class="selected-area" id="selected-area">
+                <div class="selected-label">
+                    已选择: <span id="formation-validation"></span>
+                </div>
+                <div class="selected-cards" id="selected-pieces">
+                    <!-- 已选中的牌 -->
+                </div>
+            </div>
+
+            <!-- 确认按钮 -->
+            <div class="action-buttons">
+                <button id="btn-confirm-play" class="confirm-btn">确认出牌</button>
+                <button id="btn-confirm-reserve" class="confirm-btn" style="display:none;">确认出堆</button>
+            </div>
+        </section>
+
+        <!-- 游戏日志（可折叠） -->
+        <aside class="game-log-aside" id="game-log-aside">
+            <div class="log-header" id="log-toggle">
+                <span class="log-title">游戏日志</span>
+                <span class="log-icon">▼</span>
+            </div>
+            <div class="log-content" id="game-log">
+                <!-- 日志条目 -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- 回合结果提示 -->
+    <div id="round-result"></div>
+
+    <!-- 游戏消息 -->
+    <div id="game-message" class="game-message"></div>
+
+    <!-- 等待对手遮罩 -->
+    <div id="waiting-overlay" class="waiting-overlay" style="display:none;">
+        <div class="waiting-content">
+            <div class="waiting-spinner"></div>
+            <p id="waiting-text">等待对手操作...</p>
+        </div>
+    </div>
+
+    <!-- 断线提示 -->
+    <div id="disconnect-overlay" class="disconnect-overlay" style="display:none;">
+        <div class="disconnect-content">
+            <div class="disconnect-icon">📡</div>
+            <p id="disconnect-text">对手已断开连接</p>
+            <button id="btn-disconnect-back" class="menu-btn btn-primary">返回主菜单</button>
+        </div>
+    </div>
+
+    <!-- JavaScript 文件 -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="js/pieces.js"></script>
+    <script src="js/svg-icons.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/online-game.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

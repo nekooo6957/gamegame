@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MVP 测试页面 - 增强版</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #4facfe; }
+        h2 { color: #f093fb; margin-top: 30px; }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .pass { background: #28a745; }
+        .fail { background: #dc3545; }
+        .info { background: #17a2b8; }
+        pre {
+            background: #16213e;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 职场大乱斗 MVP 测试 - 增强版</h1>
+    <div id="test-results"></div>
+
+    <!-- 加载所有JS文件 -->
+    <script src="js/pieces.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/voice.js"></script>
+
+    <script>
+        const results = document.getElementById('test-results');
+        let passCount = 0;
+        let failCount = 0;
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+            if (type === 'pass') passCount++;
+            if (type === 'fail') failCount++;
+        }
+
+        function assert(condition, message) {
+            if (condition) {
+                log(`✓ ${message}`, 'pass');
+            } else {
+                log(`✗ ${message}`, 'fail');
+            }
+            return condition;
+        }
+
+        function group(title) {
+            const h2 = document.createElement('h2');
+            h2.textContent = title;
+            results.appendChild(h2);
+        }
+
+        // ========== 测试开始 ==========
+
+        group('📊 棋子等级测试');
+
+        assert(PIECE_RANKS['A'] === 12, 'A 的等级应该是 12');
+        assert(PIECE_RANKS['a'] === 11, 'a 的等级应该是 11');
+        assert(PIECE_RANKS['A'] > PIECE_RANKS['a'], 'A > a');
+        assert(PIECE_RANKS['B'] > PIECE_RANKS['b'], 'B > b');
+
+        group('🃏 成对出棋验证测试');
+
+        assert(isValidPair(['B', 'B']) === true, 'BB 是有效的成对');
+        assert(isValidPair(['A', 'A']) === false, 'AA 是无效的（只有一个A）');
+        assert(isValidPair(['B', 'c']) === false, 'Bc 不是成对');
+
+        group('🔢 顺子验证测试');
+
+        assert(isValidSequence(['A', 'B', 'C']) === true, 'ABC 是有效的顺子');
+        assert(isValidSequence(['a', 'b', 'c']) === true, 'abc 是有效的顺子');
+        assert(isValidSequence(['D', 'E', 'F']) === true, 'DEF 是有效的顺子');
+        assert(isValidSequence(['d', 'e', 'f']) === true, 'def 是有效的顺子');
+
+        group('⚔️ 比大小规则测试');
+
+        assert(comparePieces(['A'], ['B']) > 0, 'A > B');
+        assert(comparePieces(['A'], ['a']) > 0, 'A > a');
+        assert(comparePieces(['B', 'B'], ['C', 'C']) > 0, 'BB > CC');
+        assert(comparePieces(['B', 'B'], ['b', 'b']) > 0, 'BB > bb');
+        assert(comparePieces(['A', 'B', 'C'], ['D', 'E', 'F']) > 0, 'ABC > DEF');
+        assert(comparePieces(['B', 'B'], ['B', 'c']) > 0, '成型牌 BB > 混合牌 Bc');
+
+        group('🎮 游戏流程测试');
+
+        const game = new Game();
+        game.init('玩家1', '玩家2', false);
+
+        assert(game.phase === 'rockPaperScissors', '初始阶段应该是猜拳');
+        assert(game.player1.getHandCount() === 11, '玩家1 应该有 11 张手牌');
+        assert(game.player2.getHandCount() === 11, '玩家2 应该有 11 张手牌');
+
+        game.setRockPaperScissorsWinner(1);
+        assert(game.phase === 'hand', '猜拳后应该进入手牌阶段');
+        assert(game.currentPlayer.id === 1, '玩家1 应该是先手');
+
+        group('🤖 AI 测试');
+
+        const ai = new AI('normal');
+        const aiPlayer = new Player(2, 'AI', 'lowercase');
+        aiPlayer.setHand(['a', 'b', 'b', 'c', 'c', 'd', 'd', 'e', 'e', 'f', 'f']);
+
+        const playCount = ai.decidePlayCount(aiPlayer, game.player1);
+        assert([1, 2, 3].includes(playCount), 'AI 应该选择有效的出牌数量');
+
+        // 测试AI难度信息
+        const difficultyInfo = AI.getDifficultyInfo();
+        assert(difficultyInfo.easy !== undefined, '应该有简单难度信息');
+        assert(difficultyInfo.normal !== undefined, '应该有普通难度信息');
+        assert(difficultyInfo.hard !== undefined, '应该有困难难度信息');
+
+        // 测试AI手牌分析
+        const analysis = ai.analyzeHand(aiPlayer, game.player1);
+        assert(analysis.handSize === 11, '手牌分析应该返回正确的手牌数量');
+        assert(typeof analysis.totalStrength === 'number', '应该计算总强度');
+
+        group('🔊 音效系统测试');
+
+        assert(typeof SoundManager !== 'undefined', 'SoundManager 类应该存在');
+        assert(typeof soundManager !== 'undefined', 'soundManager 实例应该存在');
+        assert(typeof soundManager.play === 'function', '应该有 play 方法');
+        assert(typeof soundManager.toggle === 'function', '应该有 toggle 方法');
+
+        // 尝试初始化音效（可能会因为用户未交互而失败）
+        try {
+            soundManager.init();
+            log('音效系统初始化成功', 'info');
+        } catch (e) {
+            log('音效系统初始化需要用户交互', 'info');
+        }
+
+        group('🗣️ 语音系统测试');
+
+        assert(typeof VoiceManager !== 'undefined', 'VoiceManager 类应该存在');
+        assert(typeof voiceManager !== 'undefined', 'voiceManager 实例应该存在');
+        assert(typeof voiceManager.speak === 'function', '应该有 speak 方法');
+        assert(typeof voiceManager.playCardVoice === 'function', '应该有 playCardVoice 方法');
+
+        // 测试语音文本获取
+        const singleVoice = voiceManager.getSingleVoice('A');
+        assert(singleVoice === '我来搞定', 'CEO 单个出牌语音应该正确');
+
+        const pairVoice = voiceManager.getPairVoice('B');
+        assert(pairVoice === '咱们俩上', 'VP 成对出牌语音应该正确');
+
+        const seqVoice = voiceManager.getSequenceVoice(['A', 'B', 'C']);
+        assert(seqVoice === '高管团出动！', 'ABC 顺子语音应该正确');
+
+        group('📦 备战区测试');
+
+        const testPlayer = new Player(1, '测试玩家', 'uppercase');
+        testPlayer.setHand(['A', 'B']);
+        testPlayer.addToReserve(['A', 'b', 'C', 'd'], 'A');
+
+        assert(testPlayer.reservePiles.length === 2, '应该有2堆备战区棋子');
+        assert(testPlayer.getReservePileCount() === 2, '备战区堆数应该正确');
+
+        // ========== 测试总结 ==========
+
+        const summary = document.createElement('div');
+        summary.innerHTML = `
+            <h2>📋 测试总结</h2>
+            <div class="test-result pass">通过: ${passCount}</div>
+            <div class="test-result fail">失败: ${failCount}</div>
+            <div class="test-result ${failCount === 0 ? 'pass' : 'fail'}">
+                总计: ${passCount + failCount} | 通过率: ${Math.round(passCount / (passCount + failCount) * 100)}%
+            </div>
+            <div class="section">
+                <h2>🎯 已完成的优化</h2>
+                <div class="test-result info">✅ 添加音效系统（Web Audio API）</div>
+                <div class="test-result info">✅ 添加角色语音（Speech Synthesis）</div>
+                <div class="test-result info">✅ 优化AI难度选择（简单/普通/困难）</div>
+                <div class="test-result info">✅ 添加游戏教程/引导</div>
+                <div class="test-result info">✅ 完善备战区UI交互</div>
+                <div class="test-result info">⏳ 添加联机对战功能（待实现）</div>
+            </div>
+        `;
+        results.appendChild(summary);
+
+        console.log(`测试完成！通过: ${passCount}, 失败: ${failCount}`);
+    </script>
+</body>
+</html>
