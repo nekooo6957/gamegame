@@ -442,7 +442,7 @@ class UI {
         if (!this.onlineGame) return;
 
         const isHost = this.onlineGame.network.isHost;
-        const canActInfo = this.onlineGame.canReadyOrStart();
+        console.log('[updateWaitingPhase] isHost:', isHost, 'localReady:', this.onlineGame.localReady, 'opponentReady:', this.onlineGame.opponentReady);
 
         // 更新状态显示
         const hostStatus = document.getElementById('host-status');
@@ -459,12 +459,14 @@ class UI {
 
         if (isHost) {
             // 房主视角
+            console.log('[updateWaitingPhase] 房主视角');
             if (hostStatus) hostStatus.textContent = '✅';
             if (guestStatus) guestStatus.textContent = this.onlineGame.opponentReady ? '✅' : '⏳';
 
             if (btnReady) btnReady.style.display = 'none';
             if (btnStart) {
                 btnStart.style.display = this.onlineGame.opponentReady ? 'inline-block' : 'none';
+                console.log('[updateWaitingPhase] btnStart display:', btnStart.style.display);
             }
 
             if (waitingHint) {
@@ -474,12 +476,15 @@ class UI {
             }
         } else {
             // 挑战者视角
+            console.log('[updateWaitingPhase] 挑战者视角');
             if (hostStatus) hostStatus.textContent = '✅';
             if (guestStatus) guestStatus.textContent = this.onlineGame.localReady ? '✅' : '⏳';
 
             if (btnStart) btnStart.style.display = 'none';
             if (btnReady) {
-                btnReady.style.display = this.onlineGame.localReady ? 'none' : 'inline-block';
+                const shouldShow = !this.onlineGame.localReady;
+                btnReady.style.display = shouldShow ? 'inline-block' : 'none';
+                console.log('[updateWaitingPhase] btnReady display:', btnReady.style.display, 'shouldShow:', shouldShow);
             }
 
             if (waitingHint) {
@@ -1782,14 +1787,16 @@ class UI {
         const localName = isHost ? '房主' : '挑战者';
         const remoteName = isHost ? '挑战者' : '房主';
 
-        this.onlineGame.initOnline(localName, remoteName, isHost);
-
         this.selectedPieces = [];
         this.selectedPiles = [];
         this.localRPSChoice = null;
 
+        // 先显示界面，确保 DOM 元素存在
         this.showScreen('game');
         this.showGamePhase('waiting');
+
+        // 然后初始化游戏数据（会触发 notifyStateChange）
+        this.onlineGame.initOnline(localName, remoteName, isHost);
 
         // 房主等待挑战者准备，挑战者可以点击准备
         if (isHost) {

@@ -98,6 +98,12 @@ class OnlineGame extends Game {
     initOnline(localName, remoteName, isHost) {
         this.localPlayerId = isHost ? 1 : 2;
 
+        // 设置初始状态（双方都需要）
+        this.phase = 'waiting';  // 等待阶段
+        this.roundNumber = 0;
+        this.winner = null;
+        this.gameLog = [];
+
         if (isHost) {
             // 房主负责发牌和初始化
             this.player1 = new Player(1, localName, 'uppercase');
@@ -107,11 +113,6 @@ class OnlineGame extends Game {
             const { player1, player2 } = shufflePieces();
             this.player1.setHand(player1);
             this.player2.setHand(player2);
-
-            this.phase = 'waiting';  // 等待挑战者准备
-            this.roundNumber = 0;
-            this.winner = null;
-            this.gameLog = [];
 
             this.log('对手已连接，发送游戏数据...');
 
@@ -125,8 +126,14 @@ class OnlineGame extends Game {
 
             this.log('等待对手准备...');
             this.notifyStateChange();
+        } else {
+            // 挑战者：设置临时名字（等收到 GAME_INIT 后会更新）
+            this.player1 = new Player(1, remoteName, 'uppercase');
+            this.player2 = new Player(2, localName, 'lowercase');
+
+            this.log('等待房主发送游戏数据...');
+            this.notifyStateChange();
         }
-        // 挑战者在收到 GAME_INIT 消息时初始化
     }
 
     /**
