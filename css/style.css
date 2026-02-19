@@ -767,6 +767,17 @@ body {
         height: 60px;
         font-size: 30px;
     }
+
+    /* 手牌区移动端适配 */
+    .hand-container {
+        max-height: 55px;
+        min-height: 45px;
+    }
+
+    .selected-cards {
+        max-height: 45px;
+        min-height: 35px;
+    }
 }
 
 /* ========== 新增样式 ========== */
@@ -1043,6 +1054,11 @@ body {
 
 /* 响应式改进 */
 @media (max-width: 480px) {
+    .game-screen {
+        padding: 3px;
+        gap: 3px;
+    }
+
     .modal-content {
         padding: 20px;
     }
@@ -1071,6 +1087,17 @@ body {
     .tutorial-nav .menu-btn {
         flex: 1;
     }
+
+    /* 确保手牌区按钮始终可见 */
+    .hand-area {
+        max-height: 25vh;
+        padding: 5px;
+    }
+
+    .action-buttons {
+        flex-shrink: 0;
+        margin-top: 4px;
+    }
 }
 
 /* ========== 对战棋盘布局样式 ========== */
@@ -1080,14 +1107,16 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh;
     max-height: 100vh;
+    max-height: 100dvh;
     background:
         radial-gradient(ellipse at 50% 0%, rgba(78, 205, 196, 0.12) 0%, transparent 50%),
         radial-gradient(ellipse at 0% 100%, rgba(68, 160, 141, 0.08) 0%, transparent 40%),
         radial-gradient(ellipse at 100% 100%, rgba(78, 205, 196, 0.08) 0%, transparent 40%),
         linear-gradient(180deg, #1a252f 0%, #2c3e50 50%, #1a252f 100%);
-    padding: var(--spacing-sm);
-    gap: var(--spacing-sm);
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
     overflow: hidden;
     animation: gameScreenFadeIn 0.4s ease;
 }
@@ -1132,9 +1161,9 @@ body {
 /* 玩家区域 - 深色主题适配 */
 .player-area {
     background: linear-gradient(145deg, rgba(44, 62, 80, 0.95) 0%, rgba(52, 73, 94, 0.95) 100%);
-    border-radius: var(--radius-md);
-    padding: 8px 12px;
-    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    box-shadow: var(--shadow-sm);
     transition: all var(--transition-normal);
     flex-shrink: 0;
     position: relative;
@@ -1394,12 +1423,12 @@ body {
             rgba(78, 205, 196, 0.03) 20px
         ),
         linear-gradient(180deg, rgba(26, 37, 47, 0.9) 0%, rgba(44, 62, 80, 0.9) 100%);
-    border-radius: var(--radius-md);
-    box-shadow: inset 0 2px 15px rgba(0, 0, 0, 0.3), var(--shadow-md);
+    border-radius: var(--radius-sm);
+    box-shadow: inset 0 2px 15px rgba(0, 0, 0, 0.3), var(--shadow-sm);
     position: relative;
     overflow: hidden;
-    min-height: 120px;
-    border: 2px solid rgba(78, 205, 196, 0.25);
+    min-height: 100px;
+    border: 1px solid rgba(78, 205, 196, 0.25);
 }
 
 /* 棋盘装饰边框 */
@@ -1505,14 +1534,15 @@ body {
 .hand-area {
     flex-shrink: 0;
     background: linear-gradient(180deg, rgba(44, 62, 80, 0.98) 0%, rgba(52, 73, 94, 0.98) 100%);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    padding: var(--spacing-md);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    padding: var(--spacing-sm);
     box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4);
-    max-height: 35vh;
+    max-height: 28vh;
+    min-height: 0;
     overflow: visible;
     display: flex;
     flex-direction: column;
-    border-top: 3px solid var(--brand-primary);
+    border-top: 2px solid var(--brand-primary);
 }
 
 /* 出牌方式选择 */
@@ -1568,12 +1598,12 @@ body {
 .hand-container {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
     background: rgba(0, 0, 0, 0.2);
     border-radius: var(--radius-sm);
-    min-height: 60px;
-    max-height: 85px;
+    min-height: 50px;
+    max-height: 70px;
     overflow-x: auto;
     overflow-y: hidden;
     justify-content: center;
@@ -1709,22 +1739,22 @@ body {
 
 /* 已选牌区 - 深色主题 */
 .selected-area {
-    margin-top: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
     flex-shrink: 0;
 }
 
 .selected-label {
-    font-size: 12px;
+    font-size: 11px;
     color: rgba(255, 255, 255, 0.7);
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 2px;
 }
 
 .selected-cards {
     display: flex;
-    gap: var(--spacing-sm);
-    min-height: 50px;
-    max-height: 65px;
-    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    min-height: 40px;
+    max-height: 55px;
+    padding: var(--spacing-xs);
     background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.1) 100%);
     border-radius: var(--radius-sm);
     border: 2px dashed rgba(255, 193, 7, 0.5);
@@ -1735,7 +1765,7 @@ body {
 
 /* 操作按钮 */
 .action-buttons {
-    margin-top: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
     flex-shrink: 0;
 }
 
@@ -1827,21 +1857,28 @@ body {
     }
 }
 
-.hand-container .piece-card {
+/* 发牌动画 - 只在发牌时应用 */
+.hand-container.dealing .piece-card {
     animation: cardDeal 0.3s ease backwards;
 }
 
-.hand-container .piece-card:nth-child(1) { animation-delay: 0.05s; }
-.hand-container .piece-card:nth-child(2) { animation-delay: 0.1s; }
-.hand-container .piece-card:nth-child(3) { animation-delay: 0.15s; }
-.hand-container .piece-card:nth-child(4) { animation-delay: 0.2s; }
-.hand-container .piece-card:nth-child(5) { animation-delay: 0.25s; }
-.hand-container .piece-card:nth-child(6) { animation-delay: 0.3s; }
-.hand-container .piece-card:nth-child(7) { animation-delay: 0.35s; }
-.hand-container .piece-card:nth-child(8) { animation-delay: 0.4s; }
-.hand-container .piece-card:nth-child(9) { animation-delay: 0.45s; }
-.hand-container .piece-card:nth-child(10) { animation-delay: 0.5s; }
-.hand-container .piece-card:nth-child(11) { animation-delay: 0.55s; }
+.hand-container.dealing .piece-card:nth-child(1) { animation-delay: 0.05s; }
+.hand-container.dealing .piece-card:nth-child(2) { animation-delay: 0.1s; }
+.hand-container.dealing .piece-card:nth-child(3) { animation-delay: 0.15s; }
+.hand-container.dealing .piece-card:nth-child(4) { animation-delay: 0.2s; }
+.hand-container.dealing .piece-card:nth-child(5) { animation-delay: 0.25s; }
+.hand-container.dealing .piece-card:nth-child(6) { animation-delay: 0.3s; }
+.hand-container.dealing .piece-card:nth-child(7) { animation-delay: 0.35s; }
+.hand-container.dealing .piece-card:nth-child(8) { animation-delay: 0.4s; }
+.hand-container.dealing .piece-card:nth-child(9) { animation-delay: 0.45s; }
+.hand-container.dealing .piece-card:nth-child(10) { animation-delay: 0.5s; }
+.hand-container.dealing .piece-card:nth-child(11) { animation-delay: 0.55s; }
+
+/* 非发牌状态 - 无动画，只保留选中/悬停效果 */
+.hand-container:not(.dealing) .piece-card {
+    animation: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
 /* 飞入动画（对手出牌） */
 @keyframes flyInFromTop {
@@ -2043,19 +2080,21 @@ body {
 @media (max-height: 600px) {
     .game-screen {
         min-height: 100vh;
+        min-height: 100dvh;
         max-height: 100vh;
+        max-height: 100dvh;
     }
 
     .hand-area {
-        max-height: 30vh;
+        max-height: 25vh;
     }
 
     .battle-zone {
-        min-height: 150px;
+        min-height: 80px;
     }
 
     .game-log-aside {
-        max-height: 60px;
+        display: none !important;
     }
 }
 
@@ -2621,36 +2660,60 @@ body {
         min-height: 44px;
     }
 
-    .player-name {
-        font-size: 12px;
+    .game-screen {
+        padding: 2px;
+        gap: 2px;
     }
 
-    .player-company {
+    .player-area {
+        padding: 4px 6px;
+    }
+
+    .player-name {
         font-size: 10px;
     }
 
+    .player-company {
+        font-size: 9px;
+    }
+
     .stat-value {
-        font-size: 14px;
+        font-size: 12px;
+    }
+
+    .hand-area {
+        max-height: 23vh;
+        padding: 4px;
     }
 
     .rps-btn {
-        width: 55px;
-        height: 55px;
-        font-size: 26px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
         min-height: 44px;
         min-width: 44px;
     }
 
     .mode-btn {
-        padding: 8px 12px;
-        font-size: 12px;
-        min-height: 40px;
+        padding: 6px 8px;
+        font-size: 10px;
+        min-height: 32px;
+    }
+
+    .hand-container {
+        max-height: 42px;
+        min-height: 35px;
+    }
+
+    .piece-card {
+        width: 32px;
+        height: 42px;
     }
 
     .confirm-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-        min-height: 44px;
+        padding: 8px 14px;
+        font-size: 11px;
+        min-height: 32px;
     }
 
     /* 确保所有可点击元素符合触摸标准 */
@@ -2721,18 +2784,18 @@ body {
 @media (max-width: 480px) {
     /* 玩家区域精简 */
     .player-info-bar {
-        padding: 6px 8px;
-        gap: 6px;
+        padding: 4px 6px;
+        gap: 4px;
     }
 
     .player-avatar {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
     }
 
     .player-name {
-        font-size: 11px;
-        max-width: 50px;
+        font-size: 10px;
+        max-width: 45px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -2747,66 +2810,68 @@ body {
     }
 
     .stat-value {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     /* 备战区网格紧凑 */
     .reserve-grid {
-        gap: 3px;
-        padding: 4px;
-        max-height: 50px;
+        gap: 2px;
+        padding: 3px;
+        max-height: 36px;
         overflow-x: auto;
         flex-wrap: nowrap;
     }
 
     .reserve-cell {
-        min-width: 36px;
-        padding: 2px 4px;
+        min-width: 32px;
+        padding: 2px 3px;
         flex-shrink: 0;
     }
 
     .piece-mini {
-        min-width: 22px;
-        height: 16px;
-        font-size: 7px;
+        min-width: 20px;
+        height: 14px;
+        font-size: 6px;
         padding: 0 2px;
     }
 
-    /* 手牌区优化 */
+    /* 手牌区优化 - 关键：减小高度确保按钮可见 */
     .hand-area {
-        padding: 8px;
-        max-height: 28vh;
+        padding: 6px;
+        max-height: 24vh;
+        min-height: 0;
     }
 
     .play-mode-selector {
-        gap: 4px;
-        margin-bottom: 6px;
+        gap: 3px;
+        margin-bottom: 4px;
     }
 
     .mode-btn {
-        padding: 6px 8px;
-        font-size: 10px;
-        min-height: 32px;
+        padding: 5px 6px;
+        font-size: 9px;
+        min-height: 28px;
     }
 
     .hand-container {
-        max-height: 60px;
-        gap: 4px;
-        padding: 4px;
+        max-height: 50px;
+        min-height: 40px;
+        gap: 3px;
+        padding: 3px;
     }
 
     .piece-card {
-        width: 38px;
-        height: 52px;
+        width: 34px;
+        height: 46px;
     }
 
     .piece-icon {
-        width: 24px;
-        height: 28px;
+        width: 22px;
+        height: 26px;
     }
 
     .piece-name {
-        font-size: 7px;
+        font-size: 6px;
     }
 
     .piece-rank {
@@ -2815,90 +2880,103 @@ body {
 
     /* 已选牌区精简 */
     .selected-area {
-        padding: 4px 0;
+        padding: 2px 0;
+        margin-top: 4px;
     }
 
     .selected-label {
-        font-size: 10px;
+        font-size: 9px;
+        margin-bottom: 2px;
     }
 
     #formation-validation {
-        font-size: 10px;
+        font-size: 9px;
     }
 
-    /* 确认按钮 */
+    .selected-cards {
+        min-height: 30px;
+        max-height: 40px;
+        padding: 3px;
+    }
+
+    /* 确认按钮 - 确保可见 */
     .confirm-btn {
-        padding: 8px 16px;
-        font-size: 12px;
+        padding: 8px 12px;
+        font-size: 11px;
         min-height: 36px;
+        margin-top: 4px;
     }
 
     .action-buttons {
-        padding-top: 6px;
+        padding-top: 4px;
+        flex-shrink: 0;
     }
 
     /* 对战区域 */
     .battle-zone {
-        min-height: 120px;
-        padding: 8px;
+        min-height: 100px;
+        padding: 6px;
+        flex: 1;
+        min-height: 0;
     }
 
     .cards-slot {
-        min-height: 40px;
-        gap: 3px;
+        min-height: 35px;
+        gap: 2px;
+        padding: 2px;
     }
 
     .vs-text {
-        font-size: 16px;
+        font-size: 14px;
     }
 
     /* 猜拳界面 */
     .rps-title {
-        font-size: 16px;
-        margin-bottom: 12px;
+        font-size: 14px;
+        margin-bottom: 10px;
     }
 
     .rps-buttons {
-        gap: 10px;
+        gap: 8px;
     }
 
     .rps-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 28px;
+        width: 55px;
+        height: 55px;
+        font-size: 26px;
     }
 
     /* 等待阶段 */
     .waiting-title {
-        font-size: 20px;
-        margin-bottom: 20px;
+        font-size: 18px;
+        margin-bottom: 15px;
     }
 
     .waiting-info {
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 15px;
     }
 
     .player-status {
-        padding: 12px;
-        min-width: 80px;
+        padding: 10px;
+        min-width: 70px;
     }
 
     .status-icon {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .status-name {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     /* 结果界面 */
     .result-title {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .result-message {
-        font-size: 14px;
+        font-size: 12px;
     }
 
     /* 游戏日志隐藏在移动端 */
@@ -2908,21 +2986,21 @@ body {
 
     /* 游戏头部精简 */
     .game-header {
-        padding: 4px 8px;
+        padding: 3px 6px;
     }
 
     .round-info {
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .header-settings {
-        gap: 4px;
+        gap: 3px;
     }
 
     .settings-btn.small {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
     }
 }
 
@@ -2934,44 +3012,63 @@ body {
     }
 
     .player-name {
-        font-size: 10px;
-        max-width: 40px;
+        font-size: 9px;
+        max-width: 35px;
     }
 
     .reserve-grid {
-        max-height: 40px;
+        max-height: 32px;
     }
 
     .reserve-cell {
-        min-width: 32px;
+        min-width: 28px;
     }
 
     .hand-area {
-        max-height: 26vh;
-        padding: 6px;
+        max-height: 22vh;
+        padding: 4px;
     }
 
     .mode-btn {
-        padding: 4px 6px;
-        font-size: 9px;
-        min-height: 28px;
+        padding: 3px 4px;
+        font-size: 8px;
+        min-height: 24px;
     }
 
-    .piece-card {
-        width: 34px;
-        height: 46px;
-    }
-
-    .confirm-btn {
-        padding: 6px 12px;
-        font-size: 11px;
+    .hand-container {
+        max-height: 40px;
         min-height: 32px;
     }
 
+    .piece-card {
+        width: 30px;
+        height: 40px;
+    }
+
+    .piece-icon {
+        width: 18px;
+        height: 22px;
+    }
+
+    .piece-name {
+        font-size: 5px;
+    }
+
+    .selected-cards {
+        min-height: 25px;
+        max-height: 32px;
+    }
+
+    .confirm-btn {
+        padding: 5px 10px;
+        font-size: 10px;
+        min-height: 28px;
+    }
+
     .rps-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 22px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
     }
 }
 

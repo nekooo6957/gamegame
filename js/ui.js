@@ -16,6 +16,9 @@ class UI {
         this.isOnlineMode = false;
         this.onlineGame = null;
         this.localRPSChoice = null;
+
+        // 发牌动画控制 - 只在首次发牌时显示
+        this.isFirstDeal = true;
     }
 
     /**
@@ -727,6 +730,16 @@ class UI {
         const container = document.getElementById('player-hand');
 
         if (!container) return;
+
+        // 控制发牌动画：只在首次发牌时添加 dealing 类
+        if (this.isFirstDeal) {
+            container.classList.add('dealing');
+            // 发牌动画完成后移除 dealing 类（最长动画延迟为 0.55s + 动画时长 0.3s）
+            setTimeout(() => {
+                container.classList.remove('dealing');
+                this.isFirstDeal = false;
+            }, 900);
+        }
 
         container.innerHTML = '';
 
