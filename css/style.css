@@ -1,11 +1,82 @@
 /**
- * 职场大乱斗 - 专业界面设计
- * 设计理念：职场商务风格 + 卡牌游戏精致感
- * 配色：深蓝灰为主色调，金色/紫色区分男女角色
+ * 职场大乱斗 - 统一设计系统
+ * 主色调：青绿色 (#4ecdc4)
+ * 设计理念：清爽、专业、易读
  */
 
 /* 引入特色字体 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Bebas+Neue&display=swap');
+
+/* ============================================
+   设计系统变量 - 必须在最前面
+   ============================================ */
+:root {
+    /* === 品牌主色（青绿色）=== */
+    --brand-primary: #4ecdc4;
+    --brand-primary-dark: #44a08d;
+    --brand-primary-light: #6fe0d8;
+    --brand-gradient: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    --brand-glow: rgba(78, 205, 196, 0.5);
+
+    /* === 背景色系 === */
+    --bg-dark: #2c3e50;
+    --bg-darker: #1a252f;
+    --bg-card: rgba(44, 62, 80, 0.95);
+    --bg-dark-primary: #2c3e50;
+    --bg-dark-secondary: #34495e;
+
+    /* === 文字色系 === */
+    --text-dark: #1a1a1a;
+    --text-primary: #2c3e50;
+    --text-secondary: #5a6c7d;
+    --text-muted: #888888;
+    --text-light: #ffffff;
+    --text-light-muted: rgba(255, 255, 255, 0.85);
+    --text-on-dark: #ffffff;
+
+    /* === 角色颜色 === */
+    --male-primary: #f5a623;
+    --male-secondary: #d4920c;
+    --male-bg: linear-gradient(135deg, #f5a623 0%, #d4920c 100%);
+    --male-glow: rgba(245, 166, 35, 0.5);
+    --female-primary: #9b59b6;
+    --female-secondary: #8e44ad;
+    --female-bg: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    --female-glow: rgba(155, 89, 182, 0.5);
+
+    /* === 公司颜色 === */
+    --company-primary: #5a6c7d;
+    --company-bg: linear-gradient(135deg, #5a6c7d 0%, #4a5a6a 100%);
+
+    /* === 间距 === */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* === 圆角 === */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* === 阴影 === */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.25);
+    --shadow-brand: 0 4px 20px rgba(78, 205, 196, 0.4);
+    --shadow-glow-male: 0 0 15px rgba(245, 166, 35, 0.5);
+    --shadow-glow-female: 0 0 15px rgba(155, 89, 182, 0.5);
+
+    /* === 动画 === */
+    --transition: 0.2s ease;
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
 /* 基础样式重置 */
 * {
@@ -16,21 +87,18 @@
 }
 
 html {
-    /* 防止iOS橡皮筋效果 */
     overscroll-behavior: none;
 }
 
 body {
     font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-    /* 更有特色的背景 - 深蓝商务风 */
     background:
-        radial-gradient(ellipse at 20% 0%, rgba(44, 62, 80, 0.4) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 100%, rgba(52, 73, 94, 0.3) 0%, transparent 50%),
-        linear-gradient(160deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+        radial-gradient(ellipse at 30% 0%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 100%, rgba(68, 160, 141, 0.08) 0%, transparent 50%),
+        linear-gradient(160deg, #1a252f 0%, #2c3e50 50%, #1a252f 100%);
     min-height: 100vh;
     min-height: 100dvh;
-    color: #333;
-    /* 安全区域适配 */
+    color: var(--text-light);
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
@@ -57,55 +125,53 @@ body {
     font-size: clamp(36px, 10vw, 56px);
     font-weight: 900;
     color: transparent;
-    background: linear-gradient(135deg, #fff 0%, #4ecdc4 50%, #ffe66d 100%);
+    background: linear-gradient(135deg, #fff 0%, var(--brand-primary) 50%, #fff 100%);
     -webkit-background-clip: text;
     background-clip: text;
-    text-shadow: none;
     margin-bottom: 12px;
     letter-spacing: 4px;
     animation: titleShimmer 3s ease-in-out infinite;
 }
 
 @keyframes titleShimmer {
-    0%, 100% {
-        filter: brightness(1);
-        transform: scale(1);
-    }
-    50% {
-        filter: brightness(1.1);
-        transform: scale(1.02);
-    }
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.15); }
 }
 
 .game-subtitle {
     font-size: clamp(14px, 3.5vw, 18px);
-    color: rgba(255,255,255,0.85);
+    color: var(--text-light-muted);
     margin-bottom: 40px;
     font-weight: 400;
     letter-spacing: 2px;
-    text-transform: uppercase;
 }
 
+/* ============================================
+   统一按钮系统 - 全部使用青绿色
+   ============================================ */
 .menu-buttons {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    align-items: center;
+    width: 100%;
+    max-width: 280px;
 }
 
-/* 主按钮 - 统一品牌风格 */
 .menu-btn {
-    padding: 16px 40px;
+    padding: 16px 48px;
     font-size: 17px;
+    font-weight: 700;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 600;
+    transition: all var(--transition);
     letter-spacing: 1px;
     position: relative;
     overflow: hidden;
-    min-width: 200px;
-    min-height: 48px;
+    min-width: 220px;
+    min-height: 52px;
+    text-align: center;
 }
 
 .menu-btn::before {
@@ -115,7 +181,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transition: left 0.5s ease;
 }
 
@@ -123,41 +189,41 @@ body {
     left: 100%;
 }
 
+/* 主要按钮 - 青绿色 */
 .btn-primary {
     background: var(--brand-gradient);
-    color: white;
+    color: #ffffff;
     box-shadow: var(--shadow-brand);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(78, 205, 196, 0.5);
+    box-shadow: 0 8px 30px rgba(78, 205, 196, 0.5);
 }
 
 .btn-primary:active {
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
 }
 
-/* 次要按钮 - 修复可读性 */
+/* 次要按钮 - 青绿色边框 */
 .btn-secondary {
-    background: linear-gradient(145deg, #2c3e50 0%, #34495e 100%);
-    color: #ffffff;
-    border: 2px solid rgba(78, 205, 196, 0.4);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: transparent;
+    color: var(--brand-primary);
+    border: 2px solid var(--brand-primary);
+    box-shadow: none;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(145deg, #34495e 0%, #3d5a73 100%);
-    border-color: rgba(78, 205, 196, 0.8);
+    background: rgba(78, 205, 196, 0.15);
+    color: var(--brand-primary-light);
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(78, 205, 196, 0.3);
 }
 
-/* 游戏界面 */
+/* 游戏界面 - 深色主题 */
 #screen-game {
-    background: #f5f5f5;
+    background: linear-gradient(180deg, #1a252f 0%, #2c3e50 50%, #1a252f 100%);
 }
 
 .game-header {
@@ -205,8 +271,9 @@ body {
 }
 
 .player-panel.active {
-    border: 3px solid #667eea;
+    border: 3px solid var(--brand-primary);
     transform: scale(1.02);
+    box-shadow: var(--shadow-brand);
 }
 
 .player-name {
@@ -356,13 +423,13 @@ body {
 }
 
 .count-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
 }
 
 .count-btn.selected {
-    background: #667eea;
-    border-color: #667eea;
+    background: var(--brand-gradient);
+    border-color: var(--brand-primary);
     color: white;
 }
 
@@ -768,6 +835,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    align-items: center;
 }
 
 /* 教程 - 增强可读性 */
@@ -849,16 +917,16 @@ body {
 /* 回合指示器 */
 .turn-indicator {
     font-size: 14px;
-    color: #667eea;
+    color: var(--brand-primary);
     font-weight: bold;
 }
 
-/* 备战区堆 */
+/* 备战区堆 - 深色主题 */
 .reserve-pile {
     display: inline-flex;
     gap: 5px;
     padding: 10px;
-    background: #f0f0f0;
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     margin: 5px;
     cursor: pointer;
@@ -866,12 +934,12 @@ body {
 }
 
 .reserve-pile:hover {
-    background: #e0e0e0;
+    background: rgba(78, 205, 196, 0.15);
 }
 
 .reserve-pile.selected {
-    background: #667eea40;
-    border: 2px solid #667eea;
+    background: rgba(78, 205, 196, 0.25);
+    border: 2px solid var(--brand-primary);
 }
 
 /* 回合结果动画改进 */
@@ -881,7 +949,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%) scale(0.8);
     padding: 25px 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--brand-gradient);
     color: white;
     border-radius: 15px;
     font-size: 28px;
@@ -932,89 +1000,7 @@ body {
 
 /* ========== 对战棋盘布局样式 ========== */
 
-/* ============================================
-   统一颜色系统 - 职场大乱斗品牌色
-   ============================================ */
-:root {
-    /* === 品牌主色 === */
-    --brand-primary: #4ecdc4;
-    --brand-primary-dark: #44a08d;
-    --brand-primary-light: #6fe0d8;
-    --brand-gradient: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
-
-    /* === 背景色系 === */
-    --bg-dark-primary: #2c3e50;
-    --bg-dark-secondary: #34495e;
-    --bg-dark-tertiary: #3d5a73;
-    --bg-dark-gradient: linear-gradient(160deg, var(--bg-dark-primary) 0%, var(--bg-dark-secondary) 50%, var(--bg-dark-primary) 100%);
-
-    --bg-light-primary: #f8f9fa;
-    --bg-light-secondary: #e9ecef;
-    --bg-light-tertiary: #dee2e6;
-    --bg-light-gradient: linear-gradient(180deg, #e8eef5 0%, #f5f7fa 50%, #eef2f7 100%);
-
-    /* === 文字色系 === */
-    --text-primary: #2c3e50;
-    --text-secondary: #5a6c7d;
-    --text-muted: #7f8c8d;
-    --text-light: #95a5a6;
-    --text-on-dark: #ffffff;
-    --text-on-dark-muted: rgba(255, 255, 255, 0.85);
-
-    /* === 状态色 === */
-    --color-success: #27ae60;
-    --color-warning: #f39c12;
-    --color-danger: #e74c3c;
-    --color-info: #3498db;
-
-    /* === 公司统一颜色 === */
-    --company-primary: #5a6c7d;
-    --company-secondary: #4a5a6a;
-    --company-bg: linear-gradient(135deg, #5a6c7d 0%, #4a5a6a 100%);
-    --company-glow: rgba(90, 108, 125, 0.5);
-
-    /* === 男性角色 - 金色系 === */
-    --male-primary: #f5a623;
-    --male-secondary: #d4920c;
-    --male-bg: linear-gradient(135deg, #f5a623 0%, #d4920c 100%);
-    --male-glow: rgba(245, 166, 35, 0.5);
-
-    /* === 女性角色 - 紫色系 === */
-    --female-primary: #9b59b6;
-    --female-secondary: #8e44ad;
-    --female-bg: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-    --female-glow: rgba(155, 89, 182, 0.5);
-
-    /* === 间距 === */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-
-    /* === 圆角 === */
-    --radius-sm: 6px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-full: 9999px;
-
-    /* === 阴影 === */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
-    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.25);
-    --shadow-glow-male: 0 0 15px var(--male-glow);
-    --shadow-glow-female: 0 0 15px var(--female-glow);
-    --shadow-brand: 0 4px 15px rgba(78, 205, 196, 0.4);
-
-    /* === 动画 === */
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.3s ease;
-    --transition-slow: 0.5s ease;
-    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* 游戏界面 - 使用更协调的深色调背景 */
+/* 游戏界面背景 */
 .game-screen {
     display: flex;
     flex-direction: column;
@@ -1275,12 +1261,12 @@ body {
 }
 
 .pile-bottom .piece-mini {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3d5a73 0%, #2c3e50 100%);
     border: 1px solid rgba(255,255,255,0.3);
 }
 
 .piece-mini.card-back {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3d5a73 0%, #2c3e50 100%);
     border: 1px solid rgba(255,255,255,0.3);
     font-style: italic;
 }
@@ -1999,7 +1985,7 @@ body {
 }
 
 /* ============================================
-   在线对战样式
+   在线对战样式 - 统一青绿色主题
    ============================================ */
 
 /* 在线模态框 */
@@ -2011,59 +1997,59 @@ body {
 /* 在线区块 */
 .online-section {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* 在线选项按钮 - 修复可读性 */
+/* 在线选项按钮 - 青绿色主色调 */
 .online-btn {
     width: 100%;
+    max-width: 320px;
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px;
-    margin-bottom: 15px;
-    background: linear-gradient(145deg, #2c3e50 0%, #34495e 100%);
-    border: 2px solid rgba(78, 205, 196, 0.3);
-    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    background: var(--brand-gradient);
+    border: none;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition);
     color: #ffffff;
     text-align: left;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-brand);
 }
 
 .online-btn:hover {
-    background: linear-gradient(145deg, #34495e 0%, #3d5a73 100%);
-    border-color: rgba(78, 205, 196, 0.8);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(78, 205, 196, 0.5);
 }
 
 .online-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+    transform: translateY(0);
 }
 
 .online-btn-icon {
-    font-size: 32px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .online-btn-content {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .online-btn-text {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 700;
     color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .online-btn-desc {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* 房间码显示 */
@@ -2125,7 +2111,7 @@ body {
     50% { text-shadow: 0 0 30px rgba(78, 205, 196, 0.7); }
 }
 
-/* 房间码操作按钮 */
+/* 房间码操作按钮 - 青绿色 */
 .room-actions {
     display: flex;
     justify-content: center;
@@ -2135,30 +2121,33 @@ body {
 
 .copy-btn, .share-btn {
     padding: 12px 24px;
-    border-radius: 8px;
-    border: none;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--brand-primary);
     cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    background: rgba(255,255,255,0.1);
-    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all var(--transition);
+    background: transparent;
+    color: var(--brand-primary);
 }
 
 .copy-btn:hover, .share-btn:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(78, 205, 196, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
 }
 
-/* 分享提示 - 修复可读性 */
+/* 分享提示 - 深色背景上可读 */
 .share-hint {
     text-align: center;
-    color: rgba(255, 255, 255, 0.95);
     margin-bottom: 20px;
 }
 
 .share-hint p {
     margin: 0;
     font-size: 14px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* 等待指示器 */
@@ -2260,6 +2249,8 @@ body {
     text-align: center;
     color: #ff6b6b;
     margin-bottom: 20px;
+    font-size: 15px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* 等待对手遮罩 */
