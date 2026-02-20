@@ -760,6 +760,16 @@ class UI {
             const genderName = isUpper ? '男性' : '女性';
             pieceEl.title = `${PIECE_NAMES[piece]} - ${genderName}`;
 
+            // 如果是选中状态，强制重绘后应用动画
+            if (isSelected) {
+                // 先设置初始状态（无 transform）
+                pieceEl.style.transform = 'translateY(0) scale(1)';
+                // 强制重绘
+                pieceEl.offsetHeight;
+                // 然后移除内联样式，让 CSS 类的样式生效并触发 transition
+                pieceEl.style.transform = '';
+            }
+
             pieceEl.addEventListener('click', () => {
                 soundManager.play('select');
                 this.togglePieceSelection(originalIndex, piece);
