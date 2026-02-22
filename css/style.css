@@ -1102,21 +1102,24 @@ body {
 
 /* ========== 对战棋盘布局样式 ========== */
 
-/* 游戏界面背景 */
+/* 游戏界面背景 - 移动端优先，使用固定定位确保不溢出 */
 .game-screen {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    min-height: 100dvh;
-    max-height: 100vh;
-    max-height: 100dvh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    height: 100dvh;
     background:
         radial-gradient(ellipse at 50% 0%, rgba(78, 205, 196, 0.12) 0%, transparent 50%),
         radial-gradient(ellipse at 0% 100%, rgba(68, 160, 141, 0.08) 0%, transparent 40%),
         radial-gradient(ellipse at 100% 100%, rgba(78, 205, 196, 0.08) 0%, transparent 40%),
         linear-gradient(180deg, #1a252f 0%, #2c3e50 50%, #1a252f 100%);
-    padding: var(--spacing-xs);
-    gap: var(--spacing-xs);
+    padding: 2px;
+    gap: 2px;
     overflow: hidden;
     animation: gameScreenFadeIn 0.4s ease;
 }
@@ -1149,23 +1152,24 @@ body {
 }
 
 /* 对战区域容器 */
+/* 对战区域容器 - 可收缩 */
 .battle-arena {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 2px;
     overflow: hidden;
     min-height: 0;
 }
 
-/* 玩家区域 - 深色主题适配 */
+/* 玩家区域 - 紧凑 */
 .player-area {
     background: linear-gradient(145deg, rgba(44, 62, 80, 0.95) 0%, rgba(52, 73, 94, 0.95) 100%);
-    border-radius: var(--radius-sm);
-    padding: 4px 8px;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-normal);
-    flex-shrink: 0;
+    border-radius: 4px;
+    padding: 2px 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    flex: 0 0 auto;
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(78, 205, 196, 0.2);
@@ -1407,9 +1411,9 @@ body {
     background: var(--female-bg);
 }
 
-/* 中央对战区 - 深色主题 */
+/* 中央对战区 - 可收缩 */
 .battle-zone {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1423,11 +1427,11 @@ body {
             rgba(78, 205, 196, 0.03) 20px
         ),
         linear-gradient(180deg, rgba(26, 37, 47, 0.9) 0%, rgba(44, 62, 80, 0.9) 100%);
-    border-radius: var(--radius-sm);
-    box-shadow: inset 0 2px 15px rgba(0, 0, 0, 0.3), var(--shadow-sm);
+    border-radius: 4px;
+    box-shadow: inset 0 2px 15px rgba(0, 0, 0, 0.3);
     position: relative;
     overflow: hidden;
-    min-height: 100px;
+    min-height: 60px;
     border: 1px solid rgba(78, 205, 196, 0.25);
 }
 
@@ -1530,42 +1534,42 @@ body {
     50% { transform: scale(1.15); opacity: 0.9; }
 }
 
-/* 底部手牌区 - 深色主题，进一步压缩 */
+/* 底部手牌区 - 固定高度，确保始终可见 */
 .hand-area {
-    flex-shrink: 0;
+    flex: 0 0 auto;
     background: linear-gradient(180deg, rgba(44, 62, 80, 0.98) 0%, rgba(52, 73, 94, 0.98) 100%);
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    padding: 6px;
+    border-radius: 4px 4px 0 0;
+    padding: 4px;
     box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4);
-    max-height: 22vh;
-    min-height: 0;
-    overflow: visible;
+    max-height: 160px;
+    min-height: 100px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     border-top: 2px solid var(--brand-primary);
-    gap: 4px;
+    gap: 2px;
 }
 
-/* 出牌方式选择 - 更紧凑 */
+/* 出牌方式选择 - 紧凑 */
 .play-mode-selector {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     margin-bottom: 2px;
     flex-shrink: 0;
 }
 
-/* 出牌方式按钮 - 深色主题，更紧凑 */
+/* 出牌方式按钮 - 紧凑 */
 .mode-btn {
     flex: 1;
-    padding: 6px 10px;
-    font-size: 11px;
+    padding: 4px 6px;
+    font-size: 9px;
     font-weight: 700;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
     background: rgba(0, 0, 0, 0.2);
     cursor: pointer;
-    transition: all var(--transition-fast);
-    letter-spacing: 0.5px;
+    transition: all 0.15s ease;
+    letter-spacing: 0.3px;
     color: rgba(255, 255, 255, 0.85);
 }
 
@@ -1595,26 +1599,26 @@ body {
     color: rgba(255, 255, 255, 0.4);
 }
 
-/* 手牌容器 - 深色主题，更紧凑 */
+/* 手牌容器 - 更紧凑 */
 .hand-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
-    padding: 3px;
+    gap: 2px;
+    padding: 2px;
     background: rgba(0, 0, 0, 0.2);
-    border-radius: var(--radius-sm);
-    min-height: 40px;
-    max-height: 55px;
+    border-radius: 4px;
+    min-height: 32px;
+    max-height: 45px;
     overflow-x: auto;
     overflow-y: hidden;
     justify-content: center;
     flex-shrink: 0;
 }
 
-/* 棋子卡片 - 基础尺寸略小 */
+/* 棋子卡片 - 更小尺寸 */
 .piece-card {
-    width: 48px;
-    height: 65px;
+    width: 36px;
+    height: 48px;
     perspective: 1000px;
     cursor: pointer;
     flex-shrink: 0;
@@ -1741,36 +1745,54 @@ body {
     border: 1px solid rgba(78, 205, 196, 0.2);
 }
 
-/* 已选牌区 - 深色主题，更紧凑 */
+/* 已选牌区 - 更紧凑 */
 .selected-area {
     margin-top: 2px;
     flex-shrink: 0;
 }
 
 .selected-label {
-    font-size: 10px;
+    font-size: 9px;
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 1px;
 }
 
 .selected-cards {
     display: flex;
-    gap: 3px;
-    min-height: 32px;
-    max-height: 42px;
-    padding: 3px;
+    gap: 2px;
+    min-height: 24px;
+    max-height: 32px;
+    padding: 2px;
     background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.1) 100%);
-    border-radius: var(--radius-sm);
-    border: 2px dashed rgba(255, 193, 7, 0.5);
+    border-radius: 4px;
+    border: 1px dashed rgba(255, 193, 7, 0.5);
     justify-content: center;
     overflow-x: auto;
-    box-shadow: inset 0 2px 8px rgba(255, 193, 7, 0.1);
 }
 
-/* 操作按钮 */
+/* 操作按钮 - 固定高度 */
 .action-buttons {
     margin-top: 2px;
     flex-shrink: 0;
+}
+
+/* 确认按钮 - 更紧凑 */
+.confirm-btn {
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    background: var(--brand-gradient);
+    color: white;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-brand);
+    position: relative;
+    overflow: hidden;
+    min-height: 32px;
 }
 
 /* 游戏日志侧栏 - 深色主题 */
