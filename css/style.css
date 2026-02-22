@@ -1104,7 +1104,7 @@ body {
 
 /* 游戏界面背景 - 移动端优先，使用固定定位确保不溢出 */
 .game-screen {
-    display: flex;
+    display: none; /* 默认隐藏，只在 .active 时显示 */
     flex-direction: column;
     position: fixed;
     top: 0;
@@ -1121,6 +1121,11 @@ body {
     padding: 2px;
     gap: 2px;
     overflow: hidden;
+}
+
+/* 游戏屏幕激活时才显示 */
+.game-screen.active {
+    display: flex;
     animation: gameScreenFadeIn 0.4s ease;
 }
 
@@ -1534,15 +1539,15 @@ body {
     50% { transform: scale(1.15); opacity: 0.9; }
 }
 
-/* 底部手牌区 - 固定高度，确保始终可见 */
+/* 底部手牌区 - 自适应高度，确保始终可见 */
 .hand-area {
     flex: 0 0 auto;
     background: linear-gradient(180deg, rgba(44, 62, 80, 0.98) 0%, rgba(52, 73, 94, 0.98) 100%);
     border-radius: 4px 4px 0 0;
     padding: 4px;
     box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4);
-    max-height: 160px;
-    min-height: 100px;
+    min-height: 90px;
+    max-height: 22vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1711,13 +1716,16 @@ body {
 .piece-card.selected,
 .hand-container .piece-card.selected,
 .hand-container:not(.dealing) .piece-card.selected {
-    transform: translateY(-12px) scale(1.05) !important;
+    transform: translateY(-10px) scale(1.08) !important;
     z-index: 10;
-    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+    /* 使用较短的过渡时间确保即时反馈 */
+    transition: none !important;
 }
 
+/* 选中状态的视觉增强 - 使用更明显的边框和阴影 */
 .piece-card.selected .piece-card__front {
-    box-shadow: 0 0 0 4px #ffc107, 0 0 30px rgba(255, 193, 7, 0.6), var(--shadow-lg);
+    box-shadow: 0 0 0 3px #ffc107, 0 0 20px rgba(255, 193, 7, 0.7), 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #ffc107 !important;
 }
 
 /* 卡片悬停效果 - 增强交互反馈 */
@@ -2748,95 +2756,99 @@ body {
     .reserve-grid {
         gap: 2px;
         padding: 2px;
-        max-height: 30px;
+        max-height: 28px;
         overflow-x: auto;
         flex-wrap: nowrap;
     }
 
     .reserve-cell {
-        min-width: 28px;
+        min-width: 24px;
         padding: 1px 2px;
         flex-shrink: 0;
     }
 
     .piece-mini {
-        min-width: 18px;
-        height: 12px;
-        font-size: 5px;
+        min-width: 16px;
+        height: 10px;
+        font-size: 4px;
         padding: 0 1px;
     }
 
-    /* 手牌区优化 - 关键：减小高度确保按钮可见 */
+    /* 手牌区 - 使用 calc 动态计算高度，确保可见 */
     .hand-area {
-        padding: 3px;
-        max-height: 18vh;
-        min-height: 0;
+        padding: 3px 2px;
+        max-height: 25vh;
+        min-height: 85px;
         gap: 2px;
+        flex-shrink: 0;
     }
 
     .play-mode-selector {
         gap: 2px;
         margin-bottom: 2px;
+        flex-shrink: 0;
     }
 
     .mode-btn {
-        padding: 4px 5px;
+        padding: 3px 4px;
         font-size: 8px;
-        min-height: 24px;
+        min-height: 22px;
     }
 
     .hand-container {
-        max-height: 40px;
-        min-height: 32px;
+        max-height: 36px;
+        min-height: 28px;
         gap: 2px;
         padding: 2px;
+        flex-shrink: 0;
     }
 
     .piece-card {
-        width: 30px;
-        height: 40px;
+        width: 26px;
+        height: 36px;
     }
 
     .piece-icon {
-        width: 18px;
-        height: 22px;
+        width: 16px;
+        height: 20px;
     }
 
     .piece-name {
-        font-size: 5px;
-    }
-
-    .piece-rank {
         font-size: 4px;
     }
 
-    /* 已选牌区精简 */
+    .piece-rank {
+        font-size: 3px;
+    }
+
+    /* 已选牌区 - 精简但确保可见 */
     .selected-area {
         padding: 1px 0;
         margin-top: 2px;
+        flex-shrink: 0;
     }
 
     .selected-label {
-        font-size: 8px;
+        font-size: 7px;
         margin-bottom: 1px;
     }
 
     #formation-validation {
-        font-size: 8px;
+        font-size: 7px;
     }
 
     .selected-cards {
-        min-height: 24px;
-        max-height: 32px;
-        padding: 2px;
+        min-height: 20px;
+        max-height: 26px;
+        padding: 1px;
         gap: 2px;
     }
 
-    /* 确认按钮 - 确保可见 */
+    /* 确认按钮 - 关键：确保可见 */
     .confirm-btn {
-        padding: 6px 10px;
-        font-size: 10px;
-        min-height: 32px;
+        padding: 5px 8px;
+        font-size: 9px;
+        min-height: 28px;
         margin-top: 2px;
     }
 
@@ -2845,16 +2857,16 @@ body {
         flex-shrink: 0;
     }
 
-    /* 对战区域 */
+    /* 对战区域 - 可收缩 */
     .battle-zone {
-        min-height: 60px;
+        min-height: 50px;
         padding: 3px;
-        flex: 1;
+        flex: 1 1 auto;
         min-height: 0;
     }
 
     .cards-slot {
-        min-height: 30px;
+        min-height: 28px;
         gap: 2px;
         padding: 2px;
     }
@@ -2950,53 +2962,55 @@ body {
     }
 
     .reserve-grid {
-        max-height: 26px;
+        max-height: 22px;
     }
 
     .reserve-cell {
-        min-width: 24px;
+        min-width: 20px;
     }
 
+    /* 手牌区 - 更紧凑但确保可见 */
     .hand-area {
-        max-height: 18vh;
-        padding: 3px;
-        gap: 2px;
+        max-height: 22vh;
+        min-height: 80px;
+        padding: 2px;
+        gap: 1px;
     }
 
     .mode-btn {
         padding: 2px 3px;
-        font-size: 7px;
-        min-height: 20px;
+        font-size: 6px;
+        min-height: 18px;
     }
 
     .hand-container {
-        max-height: 32px;
-        min-height: 26px;
+        max-height: 30px;
+        min-height: 24px;
     }
 
     .piece-card {
-        width: 26px;
-        height: 34px;
+        width: 22px;
+        height: 30px;
     }
 
     .piece-icon {
-        width: 15px;
-        height: 18px;
+        width: 14px;
+        height: 16px;
     }
 
     .piece-name {
-        font-size: 4px;
+        font-size: 3px;
     }
 
     .selected-cards {
-        min-height: 20px;
-        max-height: 26px;
+        min-height: 18px;
+        max-height: 22px;
     }
 
     .confirm-btn {
-        padding: 4px 8px;
-        font-size: 9px;
-        min-height: 26px;
+        padding: 4px 6px;
+        font-size: 8px;
+        min-height: 24px;
     }
 
     .rps-btn {
